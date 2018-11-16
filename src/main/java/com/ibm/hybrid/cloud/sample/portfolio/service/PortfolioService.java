@@ -13,7 +13,6 @@
 package com.ibm.hybrid.cloud.sample.portfolio.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -116,7 +115,12 @@ public class PortfolioService {
             stockRecord.setTotal(stockRecord.getShares()*stockRecord.getPrice());
 
             //TODO: (from orig) is it ok to update during iteration?
-            stocks.save(stockRecord);
+
+            //spring-data-jdbc doesn't support compound keys yet.
+            //stocks.save(stock);
+
+            //call our workaround.            
+            save(stockRecord);
         }
         return stockRecord;
     }
@@ -215,7 +219,38 @@ public class PortfolioService {
         }
         throw new OwnerNotFoundException();
     }
-   
+    
+    /**
+     * Workaround method for spring-data-jdbc's lack of support for compound keys.
+     * 
+     * Provides a method that would normally be written by spring-data for the repository. 
+     * 
+     * @param stock The record to save
+     * @return the record if saved, null otherwise
+     */
+    private StockRecord save(StockRecord stock){
+        if(stock.isNew()){
+            boolean done = stocks.insert(stock.getOwner(),
+                          stock.getSymbol(),
+                          stock.getShares(),
+                          stock.getCommission(),
+                          stock.getPrice(),
+                          stock.getTotal(),
+                          stock.getDatequoted()
+            );
+            if(done) return stock; else return null;
+        }else{
+            boolean done = stocks.update(stock.getOwner(),
+                            stock.getSymbol(),
+                            stock.getShares(),
+                            stock.getCommission(),
+                            stock.getPrice(),
+                            stock.getTotal(),
+                            stock.getDatequoted()
+            );
+            if(done) return stock; else return null;
+        }
+    }
 
     @Transactional
     public Portfolio updatePortfolio(String owner, String symbol, int shares) throws OwnerNotFoundException{
@@ -236,7 +271,12 @@ public class PortfolioService {
 
         if(stock.getShares()>0){
             //save updates to the stock.
-            stocks.save(stock);
+
+            //spring-data-jdbc doesn't support compound keys yet.
+            //stocks.save(stock);
+
+            //call our workaround.
+            save(stock);
         }else{
             //no need to delete new stocks with <=0 shares, just don't save them.
             if(!stock.isNew()){

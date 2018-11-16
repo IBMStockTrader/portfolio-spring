@@ -18,10 +18,10 @@ import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.StockRecord;
 
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-public interface StocksRepository extends CrudRepository<StockRecord, String[]> {
+public interface StocksRepository extends Repository<StockRecord, String> {
     @Query("SELECT Stock.owner AS owner, Stock.symbol AS symbol, Stock.shares AS shares, Stock.price AS price, Stock.total AS total, Stock.dateQuoted AS dateQuoted, Stock.commission AS commission FROM Stock WHERE Stock.owner=:owner")
     Stream<StockRecord> findByOwner(@Param("owner") String owner);
 
@@ -31,6 +31,26 @@ public interface StocksRepository extends CrudRepository<StockRecord, String[]> 
     @Modifying
     @Query("DELETE FROM Stock WHERE Stock.owner=:owner AND Stock.symbol=:symbol")
     void delete(@Param("owner")String owner, @Param("symbol") String symbol);
-    
-    StockRecord save(StockRecord record);
+
+    //StockRecord save(StockRecord record);
+
+    @Modifying
+    @Query("INSERT INTO Stock (owner, symbol, shares, commission, price, total, datequoted) VALUES ( :owner, :symbol, :shares, :commission, :price, :total, :datequoted )")
+    boolean insert(@Param("owner")String owner, 
+                   @Param("symbol") String symbol, 
+                   @Param("shares") int shares,
+                   @Param("commission") double commission,
+                   @Param("price") double price,
+                   @Param("total") double total,
+                   @Param("datequoted") String datequoted);
+    @Modifying
+    @Query("UPDATE Stock SET shares=:shares, commission=:commission, price=:price, total=:total, datequoted=:datequoted WHERE owner=:owner AND symbol=:symbol")
+    boolean update(@Param("owner")String owner, 
+                    @Param("symbol") String symbol, 
+                    @Param("shares") int shares,
+                    @Param("commission") double commission,
+                    @Param("price") double price,
+                    @Param("total") double total,
+                    @Param("datequoted") String datequoted);                   
+
 }

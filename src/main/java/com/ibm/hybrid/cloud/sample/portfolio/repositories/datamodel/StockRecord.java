@@ -16,7 +16,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 
-public class StockRecord implements Persistable<String[]> {
+public class StockRecord implements Persistable<String> {
 
     @Transient
     private boolean isNew;
@@ -103,8 +103,8 @@ public class StockRecord implements Persistable<String[]> {
     }
 
     @Override
-    public String[] getId() {
-        return StockRecord.key(owner,symbol);
+    public String getId() {
+        return symbol;
     }
 
     @Override
@@ -114,10 +114,6 @@ public class StockRecord implements Persistable<String[]> {
 
     public void setNew(boolean n){
         isNew = n;
-    }
-
-    public static String[] key(String... values){
-        return values;
     }
 
 }
