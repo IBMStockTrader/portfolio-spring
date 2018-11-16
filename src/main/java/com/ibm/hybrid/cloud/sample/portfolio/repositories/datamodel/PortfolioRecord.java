@@ -12,21 +12,29 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel;
 
-public class PortfolioRecord {
-    private String owner;
-    private double total;
-    private String loyalty;
-    private double balance;
-    private double commissions;
-    private int free;
-    private String sentiment;
-    private double nextCommission; 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+
+public class PortfolioRecord implements Persistable<String>{
+    @Id
+    String owner;
+    double total;
+    String loyalty;
+    double balance;
+    double commissions;
+    int free;
+    String sentiment;
+
+    @Transient
+    boolean isNew;
 
     public PortfolioRecord() {
+        isNew = false;
     }   
 
     public PortfolioRecord(String initialOwner, double initialTotal, String initialLoyalty, double initialBalance,
-                     double initialCommissions, int initialFree, String initialSentiment, double initialNextCommission) {
+                     double initialCommissions, int initialFree, String initialSentiment) {
         setOwner(initialOwner);
         setTotal(initialTotal);
         setLoyalty(initialLoyalty);
@@ -34,7 +42,7 @@ public class PortfolioRecord {
         setCommissions(initialCommissions);
         setFree(initialFree);
         setSentiment(initialSentiment);
-        setNextCommission(initialNextCommission);
+        isNew = false;
     }
 
     public String getOwner() {
@@ -93,12 +101,19 @@ public class PortfolioRecord {
         sentiment = newSentiment;
     }
 
-    public double getNextCommission() {
-        return nextCommission;
+
+    @Override
+    public String getId() {
+        return owner;
     }
 
-    public void setNextCommission(double newNextCommission) {
-        nextCommission = newNextCommission;
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean n){
+        isNew = n;
     }
 
 }

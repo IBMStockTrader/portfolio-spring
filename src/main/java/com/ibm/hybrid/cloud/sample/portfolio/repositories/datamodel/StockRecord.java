@@ -12,26 +12,44 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel;
 
-public class StockRecord {
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+
+public class StockRecord implements Persistable<String[]> {
+
+    @Transient
+    private boolean isNew;
+
+    private String owner;
     private String symbol;
     private int shares;
     private double commission;
     private double price;
     private double total;
-    private String date;
+    private String datequoted;
 
-
-    public StockRecord() { //default constructor
+    public StockRecord() {
+        isNew=false;
     }
 
-    public StockRecord(String initialSymbol, int initialShares, double initialCommission,
+    public StockRecord(String owner, String initialSymbol, int initialShares, double initialCommission,
                  double initialPrice, double initialTotal, String initialDate) {
+        setOwner(owner);
         setSymbol(initialSymbol);
         setShares(initialShares);
         setCommission(initialCommission);
         setPrice(initialPrice);
         setTotal(initialTotal);
-        setDate(initialDate);
+        setDatequoted(initialDate);
+        isNew=false;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String newOwner) {
+        owner = newOwner;
     }
 
     public String getSymbol() {
@@ -74,12 +92,30 @@ public class StockRecord {
         total = newTotal;
     }
 
-    public String getDate() {
-        return date;
+    public String getDatequoted() {
+        return datequoted;
     }
 
-    public void setDate(String newDate) {
-        date = newDate;
+    public void setDatequoted(String newDate) {
+        datequoted = newDate;
+    }
+
+    @Override
+    public String[] getId() {
+        return StockRecord.key(owner,symbol);
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean n){
+        isNew = n;
+    }
+
+    public static String[] key(String... values){
+        return values;
     }
 
 }

@@ -105,3 +105,5 @@ target/
 
 .gradle/
 build/
+
+src/main/resources/application-dev.properties

@@ -26,7 +26,7 @@ public class Portfolio {
     private List<Stock> stocks;
 
 
-    public Portfolio() { 
+    public Portfolio() {  
     }
 
     public Portfolio(String initialOwner, double initialTotal, String initialLoyalty, double initialBalance,

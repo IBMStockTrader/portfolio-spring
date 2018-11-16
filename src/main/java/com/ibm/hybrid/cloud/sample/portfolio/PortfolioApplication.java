@@ -12,15 +12,25 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio;
 
+import com.ibm.hybrid.cloud.sample.portfolio.repositories.PortfolioRepository;
+import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.PortfolioRecord;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
+import org.springframework.data.relational.core.mapping.NamingStrategy;
+import org.springframework.data.relational.core.mapping.event.BeforeSaveEvent;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableJms
+@EnableJdbcRepositories("com.ibm.hybrid.cloud.sample.portfolio.repositories")
 public class PortfolioApplication {
 
 	public static void main(String[] args) {
@@ -30,6 +40,25 @@ public class PortfolioApplication {
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder){
 		return builder.build();
+	}
+
+	@Bean
+	public ModelMapper mapper(){
+		return new ModelMapper();
+	}
+
+	@Bean
+    NamingStrategy namingStrategy() {
+        return new NamingStrategy() {
+            @Override
+            public String getQualifiedTableName(Class<?> c){
+				String simpleName = c.getSimpleName();
+				if(simpleName.endsWith("Record")){
+					simpleName = simpleName.substring(0,simpleName.length() - "Record".length());
+				}
+				return simpleName;
+			}
+        };
 	}
 
 }

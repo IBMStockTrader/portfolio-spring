@@ -15,12 +15,12 @@ package com.ibm.hybrid.cloud.sample.portfolio.repositories;
 import java.util.stream.Stream;
 
 import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.PortfolioRecord;
-
 import org.springframework.data.repository.Repository;
 
-public interface PortfolioRepository extends Repository<PortfolioRecord, String> {
+public interface PortfolioRepository extends Repository<PortfolioRecord,String> {
     Stream<PortfolioRecord> findAll();
-    PortfolioRecord findByOwner(String owner);
+    PortfolioRecord findById(String owner);
     void delete(PortfolioRecord record);
     PortfolioRecord save(PortfolioRecord record);
+    boolean existsById(String owner);
 }

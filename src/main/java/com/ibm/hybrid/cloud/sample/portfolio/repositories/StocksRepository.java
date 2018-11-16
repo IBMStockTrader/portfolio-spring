@@ -16,11 +16,21 @@ import java.util.stream.Stream;
 
 import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.StockRecord;
 
-import org.springframework.data.repository.Repository;
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
-public interface StocksRepository extends Repository<StockRecord, String> {
-    Stream<StockRecord> findByOwner(String owner);
-    StockRecord findByOwnerAndSymbol(String owner, String symbol);
-    void delete(StockRecord record);
+public interface StocksRepository extends CrudRepository<StockRecord, String[]> {
+    @Query("SELECT Stock.owner AS owner, Stock.symbol AS symbol, Stock.shares AS shares, Stock.price AS price, Stock.total AS total, Stock.dateQuoted AS dateQuoted, Stock.commission AS commission FROM Stock WHERE Stock.owner=:owner")
+    Stream<StockRecord> findByOwner(@Param("owner") String owner);
+
+    @Query("SELECT Stock.owner AS owner, Stock.symbol AS symbol, Stock.shares AS shares, Stock.price AS price, Stock.total AS total, Stock.dateQuoted AS dateQuoted, Stock.commission AS commission FROM Stock WHERE Stock.owner=:owner AND Stock.symbol=:symbol")
+    StockRecord findByOwnerAndSymbol(@Param("owner")String owner, @Param("symbol") String symbol);
+
+    @Modifying
+    @Query("DELETE FROM Stock WHERE Stock.owner=:owner AND Stock.symbol=:symbol")
+    void delete(@Param("owner")String owner, @Param("symbol") String symbol);
+    
     StockRecord save(StockRecord record);
 }

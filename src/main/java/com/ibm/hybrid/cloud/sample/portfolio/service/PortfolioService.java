@@ -13,6 +13,7 @@
 package com.ibm.hybrid.cloud.sample.portfolio.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,8 +30,10 @@ import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.StockRecord;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Component
 public class PortfolioService {
 
     @Autowired
@@ -57,8 +60,6 @@ public class PortfolioService {
 	private static final String LOYALTY_GOLD     = "Gold";
 	private static final String LOYALTY_PLATINUM = "Platinum";
 
-
-
     /**
      * Obtains a list of all portfolios, _without_ stocks. 
      * 
@@ -77,6 +78,7 @@ public class PortfolioService {
      * @param owner the id to create the portfolio for
      * @return new portfolio instance
      */
+    @Transactional
     public Portfolio createNewPortfolio(String owner){
 
         double defaultTotal = 0.0;
@@ -85,7 +87,6 @@ public class PortfolioService {
         double defaultCommission = 0.0;
         int defaultFree = 0;
         String defaultSentiment = "Unknown";
-        double defaultNextCommission = 9.99;  
 
         PortfolioRecord portfolioRecord = new PortfolioRecord(owner, 
                                                               defaultTotal,
@@ -93,8 +94,10 @@ public class PortfolioService {
                                                               defaultBalance,
                                                               defaultCommission,
                                                               defaultFree,
-                                                              defaultSentiment,
-                                                              defaultNextCommission);
+                                                              defaultSentiment);
+
+        portfolioRecord.setNew(!portfolios.existsById(owner));
+
         return mapper.map(portfolios.save(portfolioRecord), Portfolio.class);
     }
 
@@ -105,10 +108,10 @@ public class PortfolioService {
      * @return updated record.
      */
     private StockRecord updateStockRecord(StockRecord stockRecord){
-        StockQuoteReply sqr = stockQuoteClient.getQuote(stockRecord.getSymbol());
+        StockQuoteReply sqr = null; //stockQuoteClient.getQuote(stockRecord.getSymbol());
         //TODO: confirm error handling here.. 
         if(sqr!=null){
-            stockRecord.setDate(sqr.getDate());
+            stockRecord.setDatequoted(sqr.getDate());
             stockRecord.setPrice(sqr.getPrice());
             stockRecord.setTotal(stockRecord.getShares()*stockRecord.getPrice());
 
@@ -163,7 +166,7 @@ public class PortfolioService {
     @Transactional
     public Portfolio getPortfolio(String owner) throws OwnerNotFoundException{
         PortfolioRecord pr;
-        if((pr = portfolios.findByOwner(owner)) != null ){
+        if((pr = portfolios.findById(owner)) != null ){
             Portfolio p = mapper.map(pr, Portfolio.class);
             try(Stream<StockRecord> stockRecords = stocks.findByOwner(owner)){
 
@@ -175,11 +178,13 @@ public class PortfolioService {
 
                 p.setTotal(p.getStocks().stream().mapToDouble(stock -> stock.getTotal()).sum());   
 
+                /*
                 String oldLoyalty = p.getLoyalty();
                 updateLoyaltyLevel(p);
                 if(!oldLoyalty.equalsIgnoreCase(p.getLoyalty())){
                     loyaltyMessagingClient.sendLoyaltyUpdate(owner, oldLoyalty, p.getLoyalty());
                 }
+                */
                 
                 if(p.getFree()>0){
                     p.setNextCommission(getCommission(p.getLoyalty()));
@@ -194,7 +199,7 @@ public class PortfolioService {
     }
 
 	private double processCommission(String owner) throws OwnerNotFoundException{
-        PortfolioRecord pr = portfolios.findByOwner(owner);
+        PortfolioRecord pr = portfolios.findById(owner);
         if(pr!=null){
             String loyalty = pr.getLoyalty();
             double commission = getCommission(loyalty); 
@@ -220,14 +225,24 @@ public class PortfolioService {
         if(stock!=null){
             stock.setShares(stock.getShares()+shares);
             stock.setCommission(stock.getCommission()+commission);
+        }else{
+            stock = new StockRecord();
+            stock.setOwner(owner);
+            stock.setShares(shares);
+            stock.setSymbol(symbol);
+            stock.setCommission(commission);
+            stock.setNew(true);
         }
 
         if(stock.getShares()>0){
             //save updates to the stock.
             stocks.save(stock);
         }else{
-            //if the stock count is now 0 (or negative), we remove this stock from the user.
-            stocks.delete(stock);
+            //no need to delete new stocks with <=0 shares, just don't save them.
+            if(!stock.isNew()){
+                //if the stock count is now 0 (or negative), we remove this stock from the user.
+                stocks.delete(stock.getOwner(), stock.getSymbol());
+            }
         }
 
         return getPortfolio(owner);        
@@ -240,7 +255,7 @@ public class PortfolioService {
      * @return the deleted portfolio, without stocks
      */
     public Portfolio deletePortfolio(String owner) throws OwnerNotFoundException{
-        PortfolioRecord pr = portfolios.findByOwner(owner);
+        PortfolioRecord pr = portfolios.findById(owner);
         if(pr !=null ){
             portfolios.delete(pr);
             return mapper.map(pr,Portfolio.class);
@@ -254,4 +269,5 @@ public class PortfolioService {
         //TODO: unimplemented.
         return null;
     }
+
 }

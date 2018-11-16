@@ -13,7 +13,9 @@
 package com.ibm.hybrid.cloud.sample.portfolio.clients;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WatsonSentimentAnalysisClient {
     @Value("${watson.url:https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2017-09-21&sentences=false}")
     String watsonUrl;

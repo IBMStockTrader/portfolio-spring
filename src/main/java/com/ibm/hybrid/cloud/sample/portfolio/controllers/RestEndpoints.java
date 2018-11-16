@@ -43,7 +43,7 @@ public class RestEndpoints {
 
     @GetMapping("/")
     public List<Portfolio> getAllPortfolios() { 
-        return mapper.map(service.getAllPortfolios(), new TypeToken<List<String>>() {}.getType());
+        return mapper.map(service.getAllPortfolios(), new TypeToken<List<Portfolio>>() {}.getType());
     }
 
     @PostMapping("/{owner}")
