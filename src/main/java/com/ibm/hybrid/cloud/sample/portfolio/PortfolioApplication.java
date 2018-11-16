@@ -14,8 +14,11 @@ package com.ibm.hybrid.cloud.sample.portfolio;
 
 import com.ibm.hybrid.cloud.sample.portfolio.repositories.PortfolioRepository;
 import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.PortfolioRecord;
+import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.StockRecord;
+import com.ibm.hybrid.cloud.sample.portfolio.service.datamodel.Stock;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,11 +45,31 @@ public class PortfolioApplication {
 		return builder.build();
 	}
 
+	/*
+	* Our dao has the date column named 'datequoted' to match the db column
+	* Our dto has the date field named 'date' to meet the json requirements.
+	* ModelMapper uses a property map as a type safe way to add mappings 
+	* from one type to another. 
+	*/
 	@Bean
 	public ModelMapper mapper(){
-		return new ModelMapper();
+		ModelMapper mapper = new ModelMapper();
+		PropertyMap<StockRecord, Stock> dateMap = new PropertyMap<StockRecord, Stock>() {
+			protected void configure() {
+			  map().setDate(source.getDatequoted());
+			}
+		  };
+		mapper.addMappings(dateMap);
+		return mapper;
 	}
 
+	/*
+	* Our database table names don't match our dao object names, Spring Data
+	* allows us to alter the mappings uing a NamingStrategy. 
+    *
+	* We've named our DAO's to end in 'Record' to avoid confusion with our 
+	* DTO's and Service Objects.
+	*/
 	@Bean
     NamingStrategy namingStrategy() {
         return new NamingStrategy() {

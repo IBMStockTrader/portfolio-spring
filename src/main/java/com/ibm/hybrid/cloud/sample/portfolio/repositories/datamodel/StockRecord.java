@@ -12,6 +12,7 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 
@@ -20,6 +21,7 @@ public class StockRecord implements Persistable<String[]> {
     @Transient
     private boolean isNew;
 
+    @Id
     private String owner;
     private String symbol;
     private int shares;

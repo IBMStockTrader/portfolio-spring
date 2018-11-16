@@ -25,7 +25,7 @@ public class StockQuoteClient {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${quoteservice.url:http://stock-quote-service:9080/stock-quote}")
+    @Value("${quoteservice.url}")
     String quoteUrl;
     
     public StockQuoteReply getQuote(String symbol){

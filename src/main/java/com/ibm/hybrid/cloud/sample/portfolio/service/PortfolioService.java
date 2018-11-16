@@ -108,7 +108,7 @@ public class PortfolioService {
      * @return updated record.
      */
     private StockRecord updateStockRecord(StockRecord stockRecord){
-        StockQuoteReply sqr = null; //stockQuoteClient.getQuote(stockRecord.getSymbol());
+        StockQuoteReply sqr = stockQuoteClient.getQuote(stockRecord.getSymbol());
         //TODO: confirm error handling here.. 
         if(sqr!=null){
             stockRecord.setDatequoted(sqr.getDate());
