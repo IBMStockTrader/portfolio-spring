@@ -14,6 +14,7 @@ package com.ibm.hybrid.cloud.sample.portfolio.clients;
 
 import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.LoyaltyDecision;
 import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.LoyaltyQuery;
+import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.LoyaltyResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,14 +36,14 @@ public class LoyaltyClient {
 
     public String getLoyalty(double overallTotal){
 
-        LoyaltyQuery lq = new LoyaltyQuery();
-        lq.setOverallTotal(overallTotal);
+        LoyaltyDecision ld = new LoyaltyDecision(overallTotal);
+        LoyaltyQuery lq = new LoyaltyQuery(ld);
 
         //TODO: is this restTemplate unique to this class or shared between the other clients?
         restTemplate.getInterceptors().add( new BasicAuthenticationInterceptor(loyaltyId,loyaltyPwd));
         //TODO: confirm the json request/response mapping is sane (guessed from existing code, it may need a wrapper)
-        LoyaltyDecision ld = restTemplate.postForObject(loyaltyUrl,lq,LoyaltyDecision.class);
+        LoyaltyResponse lr = restTemplate.postForObject(loyaltyUrl,lq,LoyaltyResponse.class);
         
-        return ld.getLoyalty();
+        return lr.getTheLoyaltyDecision().getLoyalty();
     }
 }

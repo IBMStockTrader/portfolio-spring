@@ -12,27 +12,17 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel;
 
-public class LoyaltyDecision {
-    private String loyalty;
-    private double tradeTotal;
-
-    public LoyaltyDecision() {        
+public class LoyaltyResponse {
+    private LoyaltyDecision theLoyaltyDecision;
+    public LoyaltyResponse() {        
     }
-
-    public LoyaltyDecision(double tradeTotal){
-        this.tradeTotal = tradeTotal;
+    public LoyaltyResponse(LoyaltyDecision theLoyaltyDecision){
+        this.theLoyaltyDecision = theLoyaltyDecision;
     }
-
-    public void setLoyalty(String loyalty){
-        this.loyalty = loyalty;
+    public void setTheLoyaltyDecision(LoyaltyDecision theLoyaltyDecision){
+        this.theLoyaltyDecision = theLoyaltyDecision;
     }
-    public String getLoyalty(){
-        return loyalty;
+    public LoyaltyDecision getTheLoyaltyDecision(){
+        return theLoyaltyDecision;
     }
-    public void setTradeTotal(double overallTotal){
-        this.tradeTotal = overallTotal;
-    }
-    public double getTradeTotal(){
-        return tradeTotal;
-    }    
 }

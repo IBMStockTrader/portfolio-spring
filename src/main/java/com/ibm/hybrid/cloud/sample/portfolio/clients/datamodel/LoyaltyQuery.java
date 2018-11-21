@@ -13,14 +13,16 @@
 package com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel;
 
 public class LoyaltyQuery {
-    private double overallTotal;
-
-    public LoyaltyQuery(){        
+    private LoyaltyDecision theLoyaltyDecision;
+    public LoyaltyQuery() {        
     }
-    public void setOverallTotal(double overallTotal){
-        this.overallTotal = overallTotal;
+    public LoyaltyQuery(LoyaltyDecision theLoyaltyDecision){
+        this.theLoyaltyDecision = theLoyaltyDecision;
     }
-    public double getOverallTotal(){
-        return overallTotal;
+    public void setTheLoyaltyDecision(LoyaltyDecision theLoyaltyDecision){
+        this.theLoyaltyDecision = theLoyaltyDecision;
+    }
+    public LoyaltyDecision getTheLoyaltyDecision(){
+        return theLoyaltyDecision;
     }
 }

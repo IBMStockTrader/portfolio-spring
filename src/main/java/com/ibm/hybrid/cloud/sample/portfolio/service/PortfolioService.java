@@ -135,7 +135,11 @@ public class PortfolioService {
         double overallTotal = p.getTotal();
     
         String newLoyalty = loyaltyClient.getLoyalty(overallTotal);
-        p.setLoyalty(newLoyalty);
+        if(newLoyalty!=null){
+            p.setLoyalty(newLoyalty);
+        }else{
+            //loyaltyClient did not succeed, retain existing loyaly level.
+        }
         
         return;
     }
@@ -182,20 +186,24 @@ public class PortfolioService {
 
                 p.setTotal(p.getStocks().stream().mapToDouble(stock -> stock.getTotal()).sum());   
 
-                /*
+                
                 String oldLoyalty = p.getLoyalty();
                 updateLoyaltyLevel(p);
                 if(!oldLoyalty.equalsIgnoreCase(p.getLoyalty())){
-                    loyaltyMessagingClient.sendLoyaltyUpdate(owner, oldLoyalty, p.getLoyalty());
+                    loyaltyMessagingClient.sendLoyaltyUpdate(owner, oldLoyalty, p.getLoyalty());                   
                 }
-                */
-                
+                               
                 if(p.getFree()>0){
                     p.setNextCommission(getCommission(p.getLoyalty()));
                 }else{
                     p.setNextCommission(0.0);
                 }
+                
             }
+
+            PortfolioRecord newPr = mapper.map(p,PortfolioRecord.class);
+            portfolios.save(newPr);
+
             return p;
         }else{
             throw new OwnerNotFoundException();
