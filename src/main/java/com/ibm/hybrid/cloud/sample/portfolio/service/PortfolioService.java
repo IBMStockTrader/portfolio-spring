@@ -312,10 +312,6 @@ public class PortfolioService {
         }
     }
 
-    //TODO: this cannot return Portfolio .. needs to return something that includes the feedback message
-    public Portfolio submitFeedback(String owner, String input){
-        //TODO: unimplemented.
-        return null;
-    }
+
 
 }

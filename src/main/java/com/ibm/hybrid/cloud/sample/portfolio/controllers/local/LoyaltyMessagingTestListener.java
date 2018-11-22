@@ -1,13 +1,15 @@
-package com.ibm.hybrid.cloud.sample.portfolio.controllers;
+package com.ibm.hybrid.cloud.sample.portfolio.controllers.local;
 
 import javax.jms.JMSException;
 
 import com.ibm.jms.JMSTextMessage;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("dev")
 public class LoyaltyMessagingTestListener {
 
     @JmsListener(destination = "${loyalty.queue.name}" )

@@ -17,6 +17,7 @@ import java.util.List;
 import com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel.Feedback;
 import com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel.FeedbackReply;
 import com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel.Portfolio;
+import com.ibm.hybrid.cloud.sample.portfolio.service.FeedbackService;
 import com.ibm.hybrid.cloud.sample.portfolio.service.OwnerNotFoundException;
 import com.ibm.hybrid.cloud.sample.portfolio.service.PortfolioService;
 
@@ -37,41 +38,42 @@ import org.springframework.web.bind.annotation.RestController;
 public class RestEndpoints {
 
     @Autowired
-    PortfolioService service;
+    PortfolioService portfolioService;
+    @Autowired
+    FeedbackService feedbackService;
 
     ModelMapper mapper = new ModelMapper();
 
     @GetMapping("/")
     public List<Portfolio> getAllPortfolios() { 
-        return mapper.map(service.getAllPortfolios(), new TypeToken<List<Portfolio>>() {}.getType());
+        return mapper.map(portfolioService.getAllPortfolios(), new TypeToken<List<Portfolio>>() {}.getType());
     }
 
     @PostMapping("/{owner}")
     public Portfolio createPortfolio(@PathVariable String owner){
-        return mapper.map(service.createNewPortfolio(owner), Portfolio.class);
+        return mapper.map(portfolioService.createNewPortfolio(owner), Portfolio.class);
     }
 
     @GetMapping("/{owner}")
     public Portfolio getPortfolio(@PathVariable String owner) throws OwnerNotFoundException{
-        return  mapper.map(service.getPortfolio(owner), Portfolio.class);
+        return  mapper.map(portfolioService.getPortfolio(owner), Portfolio.class);
     }
 
     @PutMapping("/{owner}")
     public Portfolio updatePortfolio(@PathVariable String owner,
                                     @RequestParam("symbol") String symbol, 
                                     @RequestParam("shares") int shares ) throws OwnerNotFoundException{
-        return  mapper.map(service.updatePortfolio(owner,symbol,shares), Portfolio.class);
+        return  mapper.map(portfolioService.updatePortfolio(owner,symbol,shares), Portfolio.class);
     }
 
     @DeleteMapping("/{owner}")
     public Portfolio deletePortfolio(@PathVariable String owner) throws OwnerNotFoundException{
-        return mapper.map(service.deletePortfolio(owner), Portfolio.class);
+        return mapper.map(portfolioService.deletePortfolio(owner), Portfolio.class);
     }  
     
     @PostMapping("/{owner}/feedback")
     public FeedbackReply submitFeedback(@PathVariable String owner, Feedback feedback){
-        //xTODO: this won't work.. submitFeedback will need to return something else.
-        return mapper.map(service.submitFeedback(owner,feedback.getText()), FeedbackReply.class);
+        return mapper.map(feedbackService.submitFeedback(owner,feedback.getText()), FeedbackReply.class);
     }    
 
     @ExceptionHandler( {OwnerNotFoundException.class} )

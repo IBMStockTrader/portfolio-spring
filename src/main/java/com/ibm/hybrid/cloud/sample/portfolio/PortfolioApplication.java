@@ -12,22 +12,17 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio;
 
-import com.ibm.hybrid.cloud.sample.portfolio.repositories.PortfolioRepository;
-import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.PortfolioRecord;
 import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.StockRecord;
 import com.ibm.hybrid.cloud.sample.portfolio.service.datamodel.Stock;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
-import org.springframework.data.relational.core.mapping.event.BeforeSaveEvent;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.web.client.RestTemplate;
 

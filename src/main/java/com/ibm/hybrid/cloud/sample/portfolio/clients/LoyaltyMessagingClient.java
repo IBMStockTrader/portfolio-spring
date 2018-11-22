@@ -42,6 +42,9 @@ public class LoyaltyMessagingClient {
     public void sendLoyaltyUpdate(String owner, String oldLoyalty, String newLoyalty){
         
         LoyaltyChange lc = new LoyaltyChange(owner,oldLoyalty,newLoyalty);
+
+        //TODO: add logged in user via lc.setId()
+
         jmsTemplate.convertAndSend(queueName,lc);
     }
 }
