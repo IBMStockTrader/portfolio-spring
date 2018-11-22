@@ -35,16 +35,16 @@ public class LoyaltyMessagingClient {
     public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.TEXT);
+        //not setting _type because want to allow Spring to receive as a text message for debug.
         //converter.setTypeIdPropertyName("_type");
         return converter;
     }
 
-    public void sendLoyaltyUpdate(String owner, String oldLoyalty, String newLoyalty){
+    public void sendLoyaltyUpdate(String owner, String oldLoyalty, String newLoyalty, String id){
         
         LoyaltyChange lc = new LoyaltyChange(owner,oldLoyalty,newLoyalty);
-
-        //TODO: add logged in user via lc.setId()
-
+        if(id!=null)
+            lc.setId(id);
         jmsTemplate.convertAndSend(queueName,lc);
     }
 }

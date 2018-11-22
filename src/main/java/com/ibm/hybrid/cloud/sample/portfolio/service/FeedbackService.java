@@ -25,6 +25,7 @@ import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.ToneScore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class FeedbackService{
@@ -34,9 +35,15 @@ public class FeedbackService{
 
     @Autowired
     PortfolioRepository portfolios;
-    public Feedback submitFeedback(String owner, String input){
+
+    @Transactional
+    public Feedback submitFeedback(String owner, String input) throws OwnerNotFoundException{
         
         PortfolioRecord pr = portfolios.findById(owner);
+
+        if(pr==null){
+            throw new OwnerNotFoundException();
+        }
         
         ToneOptions toneRequest = new ToneOptions.Builder().text(input).sentences(false).build();
         DocumentAnalysis documentAnalysis = toneAnalyzerService.tone(toneRequest).execute().getDocumentTone();

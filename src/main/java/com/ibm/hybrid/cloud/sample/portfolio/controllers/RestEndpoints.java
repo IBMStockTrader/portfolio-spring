@@ -25,6 +25,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,34 +48,44 @@ public class RestEndpoints {
     ModelMapper mapper = new ModelMapper();
 
     @GetMapping("/")
+    @Secured({"ROLE_STOCKVIEWER","ROLE_STOCKTRADER"})
     public List<Portfolio> getAllPortfolios() { 
         return mapper.map(portfolioService.getAllPortfolios(), new TypeToken<List<Portfolio>>() {}.getType());
     }
 
     @PostMapping("/{owner}")
+    @Secured("ROLE_STOCKTRADER")
     public Portfolio createPortfolio(@PathVariable String owner){
         return mapper.map(portfolioService.createNewPortfolio(owner), Portfolio.class);
     }
 
     @GetMapping("/{owner}")
-    public Portfolio getPortfolio(@PathVariable String owner) throws OwnerNotFoundException{
-        return  mapper.map(portfolioService.getPortfolio(owner), Portfolio.class);
+    @Secured({"ROLE_STOCKVIEWER","ROLE_STOCKTRADER"})
+    public Portfolio getPortfolio(@PathVariable String owner, 
+                                  @AuthenticationPrincipal UsernamePasswordAuthenticationToken loggedInAs) 
+                                  throws OwnerNotFoundException{
+        return  mapper.map(portfolioService.getPortfolio(owner,loggedInAs.getName()), Portfolio.class);
     }
 
     @PutMapping("/{owner}")
+    @Secured("ROLE_STOCKTRADER")
     public Portfolio updatePortfolio(@PathVariable String owner,
                                     @RequestParam("symbol") String symbol, 
-                                    @RequestParam("shares") int shares ) throws OwnerNotFoundException{
-        return  mapper.map(portfolioService.updatePortfolio(owner,symbol,shares), Portfolio.class);
+                                    @RequestParam("shares") int shares,
+                                    @AuthenticationPrincipal UsernamePasswordAuthenticationToken loggedInAs)
+                                    throws OwnerNotFoundException{
+        return  mapper.map(portfolioService.updatePortfolio(owner,symbol,shares,loggedInAs.getName()), Portfolio.class);
     }
 
     @DeleteMapping("/{owner}")
+    @Secured("ROLE_STOCKTRADER")
     public Portfolio deletePortfolio(@PathVariable String owner) throws OwnerNotFoundException{
         return mapper.map(portfolioService.deletePortfolio(owner), Portfolio.class);
     }  
     
     @PostMapping("/{owner}/feedback")
-    public FeedbackReply submitFeedback(@PathVariable String owner, Feedback feedback){
+    @Secured("ROLE_STOCKTRADER")
+    public FeedbackReply submitFeedback(@PathVariable String owner, Feedback feedback) throws OwnerNotFoundException{
         return mapper.map(feedbackService.submitFeedback(owner,feedback.getText()), FeedbackReply.class);
     }    
 

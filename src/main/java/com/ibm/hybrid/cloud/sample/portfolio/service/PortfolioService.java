@@ -172,7 +172,7 @@ public class PortfolioService {
      * @return up to date portfolio
      */
     @Transactional
-    public Portfolio getPortfolio(String owner) throws OwnerNotFoundException{
+    public Portfolio getPortfolio(String owner, String loggedInUser) throws OwnerNotFoundException{
         PortfolioRecord pr;
         if((pr = portfolios.findById(owner)) != null ){
             Portfolio p = mapper.map(pr, Portfolio.class);
@@ -190,7 +190,7 @@ public class PortfolioService {
                 String oldLoyalty = p.getLoyalty();
                 updateLoyaltyLevel(p);
                 if(!oldLoyalty.equalsIgnoreCase(p.getLoyalty())){
-                    loyaltyMessagingClient.sendLoyaltyUpdate(owner, oldLoyalty, p.getLoyalty());                   
+                    loyaltyMessagingClient.sendLoyaltyUpdate(owner, oldLoyalty, p.getLoyalty(), loggedInUser);                   
                 }
                                
                 if(p.getFree()>0){
@@ -261,7 +261,7 @@ public class PortfolioService {
     }
 
     @Transactional
-    public Portfolio updatePortfolio(String owner, String symbol, int shares) throws OwnerNotFoundException{
+    public Portfolio updatePortfolio(String owner, String symbol, int shares, String loggedInUser) throws OwnerNotFoundException{
         double commission = processCommission(owner);
 
         StockRecord stock = stocks.findByOwnerAndSymbol(owner,symbol);
@@ -293,7 +293,7 @@ public class PortfolioService {
             }
         }
 
-        return getPortfolio(owner);        
+        return getPortfolio(owner,loggedInUser);        
     }
 
     /**

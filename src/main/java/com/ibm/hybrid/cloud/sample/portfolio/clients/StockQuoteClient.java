@@ -16,6 +16,7 @@ import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.StockQuoteReply;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,6 +30,14 @@ public class StockQuoteClient {
     String quoteUrl;
     
     public StockQuoteReply getQuote(String symbol){
+        //StockQuote requires us to propagate the security info.
+
+        //TODO: security propagation. 
+        //workaround for now.
+        String userid = "other";
+        String passwd = "other";
+        restTemplate.getInterceptors().add( new BasicAuthenticationInterceptor(userid,passwd));
+
         return restTemplate.getForObject(quoteUrl+"/"+symbol, StockQuoteReply.class);
     }
 }

@@ -12,6 +12,9 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoyaltyChange {
     private String fOwner;
     private String fOld;

@@ -24,11 +24,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
 import org.springframework.jms.annotation.EnableJms;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableJms
 @EnableJdbcRepositories("com.ibm.hybrid.cloud.sample.portfolio.repositories")
+@EnableGlobalMethodSecurity(prePostEnabled=true)
 public class PortfolioApplication {
 
 	public static void main(String[] args) {
