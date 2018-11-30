@@ -13,15 +13,24 @@
 package com.ibm.hybrid.cloud.sample.portfolio.clients;
 
 import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.StockQuoteReply;
+import com.ibm.hybrid.cloud.sample.portfolio.jwt.HeaderPropagatingInterceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class StockQuoteClient {
+
+    @Autowired
+    HeaderPropagatingInterceptor headerPropagation;
 
     @Autowired
     RestTemplate restTemplate;
@@ -31,13 +40,21 @@ public class StockQuoteClient {
     
     public StockQuoteReply getQuote(String symbol){
         //StockQuote requires us to propagate the security info.
+        restTemplate.getInterceptors().add(headerPropagation);
+        StockQuoteReply sqr = restTemplate.getForObject(quoteUrl+"/"+symbol,StockQuoteReply.class);
 
-        //TODO: security propagation. 
-        //workaround for now.
-        String userid = "other";
-        String passwd = "other";
-        restTemplate.getInterceptors().add( new BasicAuthenticationInterceptor(userid,passwd));
+        return sqr;
+        /*
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        String token = currentAuth.getCredentials().toString();
+        System.out.println("CLIENT CREDS "+token);
 
-        return restTemplate.getForObject(quoteUrl+"/"+symbol, StockQuoteReply.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+token);
+        HttpEntity entity = new HttpEntity(headers);        
+
+
+        return restTemplate.exchange(quoteUrl+"/"+symbol, HttpMethod.GET, entity, StockQuoteReply.class).getBody();
+        */
     }
 }

@@ -27,7 +27,7 @@ public class LoyaltyClient {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${loyalty.url:http://odmtrader2-ibm-odm-dev:9060/DecisionService/rest/ICP_Trader_Dev_1/determineLoyalty}")
+    @Value("${loyalty.url}")
     String loyaltyUrl;
     @Value("${loyalty.id}")
     String loyaltyId;

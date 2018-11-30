@@ -34,6 +34,9 @@ import org.springframework.web.client.RestTemplate;
 public class PortfolioApplication {
 
 	public static void main(String[] args) {
+		//Set the default profile (handy during testing)
+		//System.setProperty("spring.profiles.default", "boost");
+
 		SpringApplication.run(PortfolioApplication.class, args);
 	}
 

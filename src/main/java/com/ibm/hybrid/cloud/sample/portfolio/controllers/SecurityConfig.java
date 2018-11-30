@@ -12,18 +12,30 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.controllers;
 
+import com.ibm.hybrid.cloud.sample.portfolio.jwt.JwtAuthFilter;
+import com.ibm.hybrid.cloud.sample.portfolio.jwt.JwtAuthProvider;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    JwtAuthProvider jwtAuthProvider;
+
+    private JwtAuthFilter jwtAuthFilter() throws Exception {
+       JwtAuthFilter filter = new JwtAuthFilter(super.authenticationManager());
+       return filter;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -33,41 +45,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .anyRequest().authenticated()
                 .and()
-                    .httpBasic()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .addFilterBefore(jwtAuthFilter(), BasicAuthenticationFilter.class);                  
     }
 
     @Override
     @Autowired
-    @SuppressWarnings("deprecation")
     protected void configure(AuthenticationManagerBuilder  auth) throws Exception {
-        //only using NoOpPassword encoded because this an example. 
-        //no real deployment would use a table of userids/passwords in this manner
-        //with the passwords in cleartext in the source.
-        auth.inMemoryAuthentication().passwordEncoder(NoOpPasswordEncoder.getInstance())
-                .withUser("admin")
-                    .password("admin")
-                    .roles("ADMIN")
-            .and()                    
-                .withUser("stock") 
-                    .password("trader")
-                    .roles("STOCKTRADER")
-            .and()                    
-                .withUser("debug") 
-                    .password("debug")
-                    .roles("STOCKTRADER")
-            .and()                    
-                .withUser("read")
-                    .password("only")
-                    .roles("STOCKVIEWER")
-            .and()                    
-                .withUser("other")
-                    .password("other")
-                    .roles("OTHER")                                                                        
-            .and()                    
-                .withUser("jalcorn@us.ibm.com") 
-                    .password("test")
-                    .roles("STOCKTRADER");
+        super.configure(auth);
+        auth.authenticationProvider(jwtAuthProvider);
     }
 }

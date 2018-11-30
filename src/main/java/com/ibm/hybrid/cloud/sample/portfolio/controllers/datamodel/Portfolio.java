@@ -14,6 +14,9 @@ package com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Portfolio {
     private String owner;
     private double total;

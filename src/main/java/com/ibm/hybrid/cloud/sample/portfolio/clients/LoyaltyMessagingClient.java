@@ -21,6 +21,8 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -40,11 +42,14 @@ public class LoyaltyMessagingClient {
         return converter;
     }
 
-    public void sendLoyaltyUpdate(String owner, String oldLoyalty, String newLoyalty, String id){
-        
+    public void sendLoyaltyUpdate(String owner, String oldLoyalty, String newLoyalty){
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        String id = currentAuth.getName();
+
         LoyaltyChange lc = new LoyaltyChange(owner,oldLoyalty,newLoyalty);
         if(id!=null)
             lc.setId(id);
+            
         jmsTemplate.convertAndSend(queueName,lc);
     }
 }

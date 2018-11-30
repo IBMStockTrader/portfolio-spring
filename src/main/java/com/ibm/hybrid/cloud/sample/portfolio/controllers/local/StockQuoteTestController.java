@@ -7,17 +7,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Local stand in for stock-quote service when developing spring app away from rest of StockTrader.
+ */
 @RestController
-@Profile("dev")
+@Profile({"dev","boost"})
 public class StockQuoteTestController {
 
     AtomicInteger seq = new AtomicInteger(0);
 
     @GetMapping("/stock-quote/{symbol}")
+    @Secured({"STOCKTRADER","STOCKVIEWER"})
     public ResponseEntity<String> getQuote(@PathVariable String symbol){    
         LocalDateTime datetime = LocalDateTime.now();
         String now = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(datetime);

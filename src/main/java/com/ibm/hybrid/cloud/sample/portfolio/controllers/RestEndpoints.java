@@ -18,8 +18,10 @@ import com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel.Feedback;
 import com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel.FeedbackReply;
 import com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel.Portfolio;
 import com.ibm.hybrid.cloud.sample.portfolio.service.FeedbackService;
+import com.ibm.hybrid.cloud.sample.portfolio.service.OwnerAlreadyExistsException;
 import com.ibm.hybrid.cloud.sample.portfolio.service.OwnerNotFoundException;
 import com.ibm.hybrid.cloud.sample.portfolio.service.PortfolioService;
+import com.ibm.watson.developer_cloud.http.HttpStatus;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,26 +58,24 @@ public class RestEndpoints {
 
     @PostMapping("/{owner}")
     @Secured("ROLE_STOCKTRADER")
-    public Portfolio createPortfolio(@PathVariable String owner){
+    public Portfolio createPortfolio(@PathVariable String owner) throws OwnerAlreadyExistsException{
         return mapper.map(portfolioService.createNewPortfolio(owner), Portfolio.class);
     }
 
     @GetMapping("/{owner}")
     @Secured({"ROLE_STOCKVIEWER","ROLE_STOCKTRADER"})
-    public Portfolio getPortfolio(@PathVariable String owner, 
-                                  @AuthenticationPrincipal UsernamePasswordAuthenticationToken loggedInAs) 
+    public Portfolio getPortfolio(@PathVariable String owner) 
                                   throws OwnerNotFoundException{
-        return  mapper.map(portfolioService.getPortfolio(owner,loggedInAs.getName()), Portfolio.class);
+        return  mapper.map(portfolioService.getPortfolio(owner), Portfolio.class);
     }
 
     @PutMapping("/{owner}")
     @Secured("ROLE_STOCKTRADER")
     public Portfolio updatePortfolio(@PathVariable String owner,
                                     @RequestParam("symbol") String symbol, 
-                                    @RequestParam("shares") int shares,
-                                    @AuthenticationPrincipal UsernamePasswordAuthenticationToken loggedInAs)
+                                    @RequestParam("shares") int shares)
                                     throws OwnerNotFoundException{
-        return  mapper.map(portfolioService.updatePortfolio(owner,symbol,shares,loggedInAs.getName()), Portfolio.class);
+        return  mapper.map(portfolioService.updatePortfolio(owner,symbol,shares), Portfolio.class);
     }
 
     @DeleteMapping("/{owner}")
@@ -93,6 +94,10 @@ public class RestEndpoints {
     public ResponseEntity<String> handleNotFound() {
         return ResponseEntity.notFound().build();
     }
+    @ExceptionHandler( {OwnerAlreadyExistsException.class} )
+    public ResponseEntity<String> handleSAlreadyExists() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }    
     
 
 }

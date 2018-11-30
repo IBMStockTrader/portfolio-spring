@@ -1,0 +1,82 @@
+# Get Detailed Portfolio
+
+Get all detailed portfolio for a specified owner
+
+**URL** : `/{owner}`
+
+**METHOD** : `GET`
+
+**Auth Required** : YES
+
+**Permissons Required** : STOCKTRADER, STOCKVIEWER
+
+## Success Response
+
+**Condition** : Portfolio can be found for specified owner.
+**Code** : `200 OK`
+
+**Content examples**
+
+Example for a user with multiple stocks.. 
+
+```json
+{
+   "balance" : -69.88,
+   "sentiment" : "Unknown",
+   "commissions" : 119.88,
+   "stocks" : [
+      {
+         "price" : 100,
+         "symbol" : "AAPL",
+         "date" : "2018-11-23",
+         "total" : 2000,
+         "shares" : 20,
+         "commission" : 9.99
+      },
+      {
+         "price" : 100,
+         "symbol" : "IBM",
+         "date" : "2018-11-23",
+         "total" : 20000,
+         "shares" : 200,
+         "commission" : 29.97
+      },
+      {
+         "date" : "2018-11-23",
+         "symbol" : "MSFT",
+         "price" : 100,
+         "commission" : 79.92,
+         "shares" : 40,
+         "total" : 4000
+      }
+   ],
+   "nextCommission" : 0,
+   "loyalty" : "BRONZE",
+   "owner" : "wilma",
+   "free" : 0,
+   "total" : 26000
+}
+```
+
+Example for a user without stocks..
+
+```json
+{
+   "free" : 0,
+   "owner" : "fred",
+   "balance" : 50,
+   "nextCommission" : 0,
+   "stocks" : [],
+   "loyalty" : "BASIC",
+   "total" : 0,
+   "commissions" : 0,
+   "sentiment" : "Unknown"
+}
+```
+
+## Error Response
+
+**Condition** : No portfolio was located for specified owner.
+
+**Code** : `404 NOT FOUND`
+

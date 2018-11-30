@@ -8,8 +8,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Local stand-in for JMS Message consumer when developing Spring app away from rest of StockTrader
+ */
 @Component
-@Profile("dev")
+@Profile({"dev","boost"})
 public class LoyaltyMessagingTestListener {
 
     @JmsListener(destination = "${loyalty.queue.name}" )

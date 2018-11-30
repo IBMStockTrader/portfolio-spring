@@ -107,3 +107,5 @@ target/
 build/
 
 src/main/resources/application-dev.properties
+src/main/resources/application-boost.properties
+Dockerfile

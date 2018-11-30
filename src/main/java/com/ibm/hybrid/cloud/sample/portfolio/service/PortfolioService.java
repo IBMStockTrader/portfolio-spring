@@ -78,7 +78,12 @@ public class PortfolioService {
      * @return new portfolio instance
      */
     @Transactional
-    public Portfolio createNewPortfolio(String owner){
+    public Portfolio createNewPortfolio(String owner) throws OwnerAlreadyExistsException{
+
+        PortfolioRecord test = portfolios.findById(owner);
+        if(test!=null){
+            throw new OwnerAlreadyExistsException();
+        }
 
         double defaultTotal = 0.0;
         String defaultLoyalty = LOYALTY_BASIC;
@@ -98,6 +103,114 @@ public class PortfolioService {
         portfolioRecord.setNew(!portfolios.existsById(owner));
 
         return mapper.map(portfolios.save(portfolioRecord), Portfolio.class);
+    }
+
+    /**
+     * Gets an up-to-date version of the portfolio for a user. 
+     * All stock prices are retrieved at the time of the portfolio request (where possible)
+     * Overall portfolio value & loyalty, and next commission rate is recalculated based on current stock values.
+     * 
+     * @param owner the owner of the portfolio
+     * @return up to date portfolio
+     * @throws OwnerNotFoundException if portfolio cannot be found for owner
+     */
+    @Transactional
+    public Portfolio getPortfolio(String owner) throws OwnerNotFoundException{
+        PortfolioRecord pr;
+        if((pr = portfolios.findById(owner)) != null ){
+            Portfolio p = mapper.map(pr, Portfolio.class);
+            try(Stream<StockRecord> stockRecords = stocks.findByOwner(owner)){
+
+                //process existing stocks, update their values, and set them as portfolio 
+                //service entities.
+                p.setStocks(
+                    stockRecords.map( stockRecord -> updateStockRecord(stockRecord))
+                                .map( stockRecord -> mapper.map(stockRecord, Stock.class))
+                                .collect(Collectors.toList())
+                );
+
+                //update the total value of the portfolio based on the updated stock values.
+                p.setTotal(p.getStocks().stream().mapToDouble(stock -> stock.getTotal()).sum());   
+
+                //update the loyalty level (will send jms if level changes)
+                updateLoyaltyLevel(p);
+                     
+                //update next commission, if user has no free trades remaining.
+                if(p.getFree()>0){
+                    p.setNextCommission(getCommission(p.getLoyalty()));
+                }else{
+                    p.setNextCommission(0.0);
+                }
+                
+            }
+
+            PortfolioRecord newPr = mapper.map(p,PortfolioRecord.class);
+            portfolios.save(newPr);
+
+            return p;
+        }else{
+            throw new OwnerNotFoundException();
+        }
+    }
+    
+    /**
+     * Updates a portfolio, manipulating a stockcount by the supplied amount.
+     * @param owner the owner of the portfolio to update
+     * @param symbol the stock symbol to adjust quantity of
+     * @param shares the amount to adjust the quantity by
+     * @return updated portfolio
+     * @throws OwnerNotFoundException if portfolio cannot be located for owner.
+     */
+    @Transactional
+    public Portfolio updatePortfolio(String owner, String symbol, int shares) throws OwnerNotFoundException{
+        double commission = processCommission(owner);
+
+        StockRecord stock = stocks.findByOwnerAndSymbol(owner,symbol);
+        if(stock!=null){
+            stock.setShares(stock.getShares()+shares);
+            stock.setCommission(stock.getCommission()+commission);
+        }else{
+            stock = new StockRecord();
+            stock.setOwner(owner);
+            stock.setShares(shares);
+            stock.setSymbol(symbol);
+            stock.setCommission(commission);
+            stock.setNew(true);
+        }
+
+        if(stock.getShares()>0){
+            //save updates to the stock.
+
+            //spring-data-jdbc doesn't support compound keys yet.
+            //stocks.save(stock);
+
+            //call our workaround.
+            save(stock);
+        }else{
+            //no need to delete new stocks with <=0 shares, just don't save them.
+            if(!stock.isNew()){
+                //if the stock count is now 0 (or negative), we remove this stock from the user.
+                stocks.delete(stock.getOwner(), stock.getSymbol());
+            }
+        }
+
+        return getPortfolio(owner);        
+    }
+
+    /**
+     * Deletes a portfolio
+     * 
+     * @param owner the owner of the portfolio to be deleted
+     * @return the deleted portfolio, without stocks
+     */
+    public Portfolio deletePortfolio(String owner) throws OwnerNotFoundException{
+        PortfolioRecord pr = portfolios.findById(owner);
+        if(pr !=null ){
+            portfolios.delete(pr);
+            return mapper.map(pr,Portfolio.class);
+        }else{
+            throw new OwnerNotFoundException();
+        }
     }
 
     /**
@@ -133,14 +246,17 @@ public class PortfolioService {
      */
     private void updateLoyaltyLevel(Portfolio p){
         double overallTotal = p.getTotal();
-    
+        String oldLoyalty = p.getLoyalty();
         String newLoyalty = loyaltyClient.getLoyalty(overallTotal);
         if(newLoyalty!=null){
             p.setLoyalty(newLoyalty);
+            if(!oldLoyalty.equalsIgnoreCase(p.getLoyalty())){
+                //TODO: confirm this is not sent if the wider tx is rolled back.
+                loyaltyMessagingClient.sendLoyaltyUpdate(p.getOwner(), oldLoyalty, p.getLoyalty());                   
+            }            
         }else{
             //loyaltyClient did not succeed, retain existing loyaly level.
-        }
-        
+        }    
         return;
     }
 
@@ -164,52 +280,16 @@ public class PortfolioService {
 	}
 
     /**
-     * Gets an up-to-date version of the portfolio for a user. 
-     * All stock prices are retrieved at the time of the portfolio request (where possible)
-     * Overall portfolio value & loyalty, and next commission rate is recalculated based on current stock values.
+     * Calculates the commission for a given owner, taking into account
+     * free trade count, which is modified if one is used to calculate the commission.
      * 
-     * @param owner the owner of the portfolio
-     * @return up to date portfolio
+     * Must be called as part of a larger transaction, due to modification of the 
+     * portfolio associated to the owner.
+     * 
+     * @param owner the owner of the porfolio to process a commission for.
+     * @return the amount charged.
+     * @throws OwnerNotFoundException
      */
-    @Transactional
-    public Portfolio getPortfolio(String owner, String loggedInUser) throws OwnerNotFoundException{
-        PortfolioRecord pr;
-        if((pr = portfolios.findById(owner)) != null ){
-            Portfolio p = mapper.map(pr, Portfolio.class);
-            try(Stream<StockRecord> stockRecords = stocks.findByOwner(owner)){
-
-                p.setStocks(
-                    stockRecords.map( stockRecord -> updateStockRecord(stockRecord))
-                                .map( stockRecord -> mapper.map(stockRecord, Stock.class))
-                                .collect(Collectors.toList())
-                );
-
-                p.setTotal(p.getStocks().stream().mapToDouble(stock -> stock.getTotal()).sum());   
-
-                
-                String oldLoyalty = p.getLoyalty();
-                updateLoyaltyLevel(p);
-                if(!oldLoyalty.equalsIgnoreCase(p.getLoyalty())){
-                    loyaltyMessagingClient.sendLoyaltyUpdate(owner, oldLoyalty, p.getLoyalty(), loggedInUser);                   
-                }
-                               
-                if(p.getFree()>0){
-                    p.setNextCommission(getCommission(p.getLoyalty()));
-                }else{
-                    p.setNextCommission(0.0);
-                }
-                
-            }
-
-            PortfolioRecord newPr = mapper.map(p,PortfolioRecord.class);
-            portfolios.save(newPr);
-
-            return p;
-        }else{
-            throw new OwnerNotFoundException();
-        }
-    }
-
 	private double processCommission(String owner) throws OwnerNotFoundException{
         PortfolioRecord pr = portfolios.findById(owner);
         if(pr!=null){
@@ -226,8 +306,9 @@ public class PortfolioService {
             return commission;
         }
         throw new OwnerNotFoundException();
-    }
-    
+    }    
+
+
     /**
      * Workaround method for spring-data-jdbc's lack of support for compound keys.
      * 
@@ -257,58 +338,6 @@ public class PortfolioService {
                             stock.getDatequoted()
             );
             if(done) return stock; else return null;
-        }
-    }
-
-    @Transactional
-    public Portfolio updatePortfolio(String owner, String symbol, int shares, String loggedInUser) throws OwnerNotFoundException{
-        double commission = processCommission(owner);
-
-        StockRecord stock = stocks.findByOwnerAndSymbol(owner,symbol);
-        if(stock!=null){
-            stock.setShares(stock.getShares()+shares);
-            stock.setCommission(stock.getCommission()+commission);
-        }else{
-            stock = new StockRecord();
-            stock.setOwner(owner);
-            stock.setShares(shares);
-            stock.setSymbol(symbol);
-            stock.setCommission(commission);
-            stock.setNew(true);
-        }
-
-        if(stock.getShares()>0){
-            //save updates to the stock.
-
-            //spring-data-jdbc doesn't support compound keys yet.
-            //stocks.save(stock);
-
-            //call our workaround.
-            save(stock);
-        }else{
-            //no need to delete new stocks with <=0 shares, just don't save them.
-            if(!stock.isNew()){
-                //if the stock count is now 0 (or negative), we remove this stock from the user.
-                stocks.delete(stock.getOwner(), stock.getSymbol());
-            }
-        }
-
-        return getPortfolio(owner,loggedInUser);        
-    }
-
-    /**
-     * Deletes a portfolio
-     * 
-     * @param owner the owner of the portfolio to be deleted
-     * @return the deleted portfolio, without stocks
-     */
-    public Portfolio deletePortfolio(String owner) throws OwnerNotFoundException{
-        PortfolioRecord pr = portfolios.findById(owner);
-        if(pr !=null ){
-            portfolios.delete(pr);
-            return mapper.map(pr,Portfolio.class);
-        }else{
-            throw new OwnerNotFoundException();
         }
     }
 
