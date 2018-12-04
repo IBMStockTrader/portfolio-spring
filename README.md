@@ -38,21 +38,7 @@ via *JDBC*.  The following operations are available:
 
 `POST /{owner}/feedback` - [submits feedback (to the Watson Tone Analyzer)](docs/submitFeedback.md)
 
-## Building
-
-### Adding db2jcc4.jar to the project
-
-The DB2 JDBC Driver (JCC) is sadly not available in Maven, so you have to download it directly from from IBM, and add it to a local maven repository. 
-
-- Select and download the appropriate driver archive from http://www-01.ibm.com/support/docview.wss?uid=swg21363866
-- Unpack the archive, and save the `db2jcc4.jar` file to new `lib` directory on the root of
- your project
-- Add the Jar as a Maven package from the `lib` directory (change the version appropriately with the archive you downloaded)
-  ```
-  mvn install:install-file -DlocalRepositoryPath=lib -DcreateChecksum=true -Dpackaging=jar -Dfile=./lib/db2jcc4.jar -DgroupId=com.ibm.db2.jcc -DartifactId=db2jcc4 -Dversion=4.24.92
-  ```
-
-The pom.xml is already configured to expect to find the db2 jar in that location.
+## Build & Config.
 
 ### Building
 
@@ -73,8 +59,8 @@ The application/container expects the following environment variables to be popu
 |`MQ_ID` | The userid for MQ.|
 |`MQ_PASSWORD` | The password for MQ.|
 |`LOYALTY_URL` | The url of the loyalty service, eg. `http://192.168.18.100:31422/DecisionService/rest/v1/ICP_Trader_Dev_1/determineLoyalty` |
-|`LOYALTY_ID` (or `ODM_ID`)| The user id for the loyalty service|
-|`LOYALTY_PWD` (or `ODM_PWD`)| The password for the loyalty service|
+|`LOYALTY_ID`| The user id for the loyalty service|
+|`LOYALTY_PWD`| The password for the loyalty service|
 |`JDBC_HOST` | The host for the jdbc connection |
 |`JDBC_PORT` | The port for the jdbc connection | 
 |`JDBC_ID` | The userid for the jdbc connection |
