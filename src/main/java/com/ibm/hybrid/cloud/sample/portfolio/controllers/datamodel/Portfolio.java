@@ -13,6 +13,7 @@
 package com.ibm.hybrid.cloud.sample.portfolio.controllers.datamodel;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -26,7 +27,7 @@ public class Portfolio {
     private int free;
     private String sentiment;
     private double nextCommission;
-    private List<Stock> stocks;
+    private Map<String,Stock> stocks;
 
     public Portfolio() { 
     }
@@ -107,11 +108,11 @@ public class Portfolio {
         nextCommission = newNextCommission;
     }
 
-    public List<Stock> getStocks() {
+    public Map<String,Stock> getStocks() {
         return stocks;
     }
 
-    public void setStocks(List<Stock> newStocks) {
+    public void setStocks(Map<String,Stock> newStocks) {
         stocks = newStocks;
     }
 

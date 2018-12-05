@@ -126,11 +126,11 @@ public class PortfolioService {
                 p.setStocks(
                     stockRecords.map( stockRecord -> updateStockRecord(stockRecord))
                                 .map( stockRecord -> mapper.map(stockRecord, Stock.class))
-                                .collect(Collectors.toList())
+                                .collect(Collectors.toMap( Stock::getSymbol, sr -> sr))
                 );
 
                 //update the total value of the portfolio based on the updated stock values.
-                p.setTotal(p.getStocks().stream().mapToDouble(stock -> stock.getTotal()).sum());   
+                p.setTotal(p.getStocks().values().stream().mapToDouble(stock -> stock.getTotal()).sum());   
 
                 //update the loyalty level (will send jms if level changes)
                 updateLoyaltyLevel(p);

@@ -24,32 +24,32 @@ Example for a user with multiple stocks..
    "balance" : -69.88,
    "sentiment" : "Unknown",
    "commissions" : 119.88,
-   "stocks" : [
-      {
-         "price" : 100,
-         "symbol" : "AAPL",
-         "date" : "2018-11-23",
-         "total" : 2000,
-         "shares" : 20,
-         "commission" : 9.99
-      },
-      {
-         "price" : 100,
-         "symbol" : "IBM",
-         "date" : "2018-11-23",
-         "total" : 20000,
-         "shares" : 200,
-         "commission" : 29.97
-      },
-      {
-         "date" : "2018-11-23",
-         "symbol" : "MSFT",
-         "price" : 100,
-         "commission" : 79.92,
-         "shares" : 40,
-         "total" : 4000
-      }
-   ],
+   "stocks" : {
+    "MSFT": {
+      "symbol": "MSFT",
+      "shares": 40,
+      "commission": 79.92,
+      "price": 100,
+      "total": 4000,
+      "date": "2018-12-04"
+    },
+    "IBM": {
+      "symbol": "IBM",
+      "shares": 200,
+      "commission": 29.97,
+      "price": 100,
+      "total": 20000,
+      "date": "2018-12-04"
+    },
+    "AAPL": {
+      "symbol": "AAPL",
+      "shares": 20,
+      "commission": 9.99,
+      "price": 100,
+      "total": 2000,
+      "date": "2018-12-04"
+    }
+   },
    "nextCommission" : 0,
    "loyalty" : "BRONZE",
    "owner" : "wilma",
