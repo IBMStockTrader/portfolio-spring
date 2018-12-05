@@ -2,7 +2,7 @@
 
 Get all detailed portfolio for a specified owner
 
-**URL** : `/{owner}`
+**URL** : `/portfolio/{owner}`
 
 **METHOD** : `GET`
 

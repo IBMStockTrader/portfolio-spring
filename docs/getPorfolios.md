@@ -2,7 +2,7 @@
 
 Get all portfolios in summary form (without stocks).
 
-**URL** : `/`
+**URL** : `/portfolio/`
 
 **METHOD** : `GET`
 

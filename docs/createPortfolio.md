@@ -2,7 +2,7 @@
 
 Creates a new portfolio for a specified owner.
 
-**URL** : `/{owner}`
+**URL** : `/portfolio/{owner}`
 
 **METHOD** : `POST`
 

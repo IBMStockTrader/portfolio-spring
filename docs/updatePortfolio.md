@@ -2,7 +2,7 @@
 
 Adjust the amount held of a given stock symbol for the owners portfolio.
 
-**URL** : `/{owner}?symbol={symbol}&shares={quantity}`
+**URL** : `/portfolio/{owner}?symbol={symbol}&shares={quantity}`
 
 **METHOD** : `PUT`
 

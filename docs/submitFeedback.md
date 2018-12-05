@@ -2,7 +2,7 @@
 
 Submit feedback about the StockTrader service from an owner.
 
-**URL** : `/{owner}/feedback`
+**URL** : `/portfolio/{owner}/feedback`
 
 **METHOD** : `POST`
 

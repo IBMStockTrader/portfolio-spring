@@ -2,7 +2,7 @@
 
 Delete portfolio for a specified owner. This also deletes any associated stocks held by the portfolio.
 
-**URL** : `/{owner}`
+**URL** : `/portfolio/{owner}`
 
 **METHOD** : `DELETE`
 

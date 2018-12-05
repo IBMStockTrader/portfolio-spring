@@ -26,17 +26,17 @@ __------------------------------------------------------------------------------
 This service manages a *stock portfolio*.  The data is backed by two **DB2** tables, communicated with
 via *JDBC*.  The following operations are available:
 
-`GET /` - [gets summary data for all portfolios](docs/getPorfolios.md)
+`GET /portfolio/` - [gets summary data for all portfolios](docs/getPorfolios.md)
 
-`POST /{owner}` - [creates a new portfolio for the specified owner](docs/createPortfolio.md)
+`POST /portfolio/{owner}` - [creates a new portfolio for the specified owner](docs/createPortfolio.md)
 
-`GET /{owner}` - [gets details for the specified owner](docs/getFullPortfolio.md)
+`GET /portfolio/{owner}` - [gets details for the specified owner](docs/getFullPortfolio.md)
 
-`PUT /{owner}` - [updates the portfolio for the specified owner (by adding a stock)](docs/updatePortfolio.md)
+`PUT /portfolio/{owner}` - [updates the portfolio for the specified owner (by adding a stock)](docs/updatePortfolio.md)
 
-`DELETE /{owner}` - [removes the portfolio for the specified owner](docs/deletePortfolio.md)
+`DELETE /portfolio/{owner}` - [removes the portfolio for the specified owner](docs/deletePortfolio.md)
 
-`POST /{owner}/feedback` - [submits feedback (to the Watson Tone Analyzer)](docs/submitFeedback.md)
+`POST /portfolio/{owner}/feedback` - [submits feedback (to the Watson Tone Analyzer)](docs/submitFeedback.md)
 
 ## Build & Config.
 
