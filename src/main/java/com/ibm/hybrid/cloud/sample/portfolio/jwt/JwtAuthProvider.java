@@ -12,8 +12,10 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.jwt;
 
+import java.security.PublicKey;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -53,7 +55,10 @@ public class JwtAuthProvider implements AuthenticationProvider {
     private long skew;
 
     @Value("${jwt.publicKey}")
-    private String key;
+    private String keyName;
+
+    @Autowired
+    PublicKey key;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

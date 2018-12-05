@@ -58,6 +58,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
          HttpServletResponse response, FilterChain filterChain) 
          throws ServletException, IOException {
         String authHeader = request.getHeader(header);
+        System.out.println("Req url "+request.getRequestURL());
         System.out.println("Looking for header .. got "+String.valueOf(authHeader));
         if(authHeader!=null){
             String parts[] = authHeader.split(" "); //Bearer ejkfjkfejkfem
@@ -69,7 +70,6 @@ public class JwtAuthFilter extends OncePerRequestFilter{
                 }catch(IllegalArgumentException e){
                     //expected, as we return null in the key resolver.
                     String id = ie.subject;
-                    System.out.println("ID was "+id);
                     Authentication authentication = authenticationManager.authenticate(new JwtTokenAuthentication(id,encodedToken));
                     SecurityContextHolder.getContext().setAuthentication(authentication);                    
                 }catch(Exception e){

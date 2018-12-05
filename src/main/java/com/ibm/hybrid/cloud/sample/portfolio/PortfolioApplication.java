@@ -12,6 +12,10 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio;
 
+import java.security.KeyStore;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+
 import com.ibm.hybrid.cloud.sample.portfolio.repositories.datamodel.StockRecord;
 import com.ibm.hybrid.cloud.sample.portfolio.service.datamodel.Stock;
 
@@ -21,6 +25,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.relational.core.mapping.NamingStrategy;
 import org.springframework.jms.annotation.EnableJms;
@@ -82,6 +87,29 @@ public class PortfolioApplication {
 				return simpleName;
 			}
         };
+	}
+
+	/*
+	* TEMPORARY:
+	* Current MP portfolio has key.jks checked in, until we fix that, we
+	* will use the same approach here to obtain the public key to verify jwt's with.
+	*/
+	@Bean
+	PublicKey jwtVerificationKey() {
+		try{
+			ClassPathResource resource = new ClassPathResource("key.jks");
+			KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keystore.load(resource.getInputStream(), "passw0rd".toCharArray());
+
+			//if we ever need the signing key.
+			//Key key = keystore.getKey("default", "passw0rd".toCharArray());
+
+			//just get the public key.
+			Certificate cert = keystore.getCertificate("default");     
+			return cert.getPublicKey();  
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }
