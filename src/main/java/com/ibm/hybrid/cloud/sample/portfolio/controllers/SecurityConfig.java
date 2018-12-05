@@ -16,6 +16,7 @@ import com.ibm.hybrid.cloud.sample.portfolio.jwt.JwtAuthFilter;
 import com.ibm.hybrid.cloud.sample.portfolio.jwt.JwtAuthProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -43,6 +44,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf()
                     .disable()
                 .authorizeRequests()
+                    .requestMatchers(EndpointRequest.to("health"))
+                        .permitAll()                
                     .anyRequest().authenticated()
                 .and()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
