@@ -17,12 +17,6 @@ import com.ibm.hybrid.cloud.sample.portfolio.jwt.HeaderPropagatingInterceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.support.BasicAuthenticationInterceptor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,17 +38,5 @@ public class StockQuoteClient {
         StockQuoteReply sqr = restTemplate.getForObject(quoteUrl+"/"+symbol,StockQuoteReply.class);
 
         return sqr;
-        /*
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        String token = currentAuth.getCredentials().toString();
-        System.out.println("CLIENT CREDS "+token);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "+token);
-        HttpEntity entity = new HttpEntity(headers);        
-
-
-        return restTemplate.exchange(quoteUrl+"/"+symbol, HttpMethod.GET, entity, StockQuoteReply.class).getBody();
-        */
     }
 }
