@@ -25,48 +25,64 @@
 	</properties>
 
 	<dependencies>
+
+	    <!-- Rest controller etc -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- Health check endpoints etc -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>	
+
+		<!-- Security framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>		
-		
+
+		<!-- Spring data jdbc -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jdbc</artifactId>
-			<version>1.0.2.RELEASE</version>
+			<version>1.0.3.RELEASE</version>
 		</dependency>
-	
-		<dependency>
-			<groupId>com.ibm.db2.jcc</groupId>
-			<artifactId>db2jcc</artifactId>
-			<version>db2jcc4</version>
-		</dependency>		
-		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 			<version>2.1.0.RELEASE</version>
-		</dependency>		
+		</dependency>	
+
+		<!-- IBM MQ Spring Starter -->	
 		<dependency>
 			<groupId>com.ibm.mq</groupId>
 			<artifactId>mq-jms-spring-boot-starter</artifactId>
 			<version>2.0.9</version>		
-		</dependency>	
+		</dependency>			
+		<!-- IBM Watson Spring Starter -->	
 		<dependency>
 			<groupId>com.ibm.watson.developer_cloud</groupId>
 			<artifactId>watson-spring-boot-starter</artifactId>
 			<version>0.3.0</version>
-		</dependency>		
+		</dependency>	
+		<!-- Official DB2 in Maven -->	
+		<dependency>		
+			<groupId>com.ibm.db2.jcc</groupId>
+			<artifactId>db2jcc</artifactId>
+			<version>db2jcc4</version>
+		</dependency>	
+
+		<!-- Used to map DTO's to DAO's etc -->			
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>2.3.1</version>
 		</dependency>	
 
+		<!-- JWT handling -->	
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -85,6 +101,7 @@
 			<scope>runtime</scope>
 		</dependency>		
 
+		<!-- Support for testing -->	
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
