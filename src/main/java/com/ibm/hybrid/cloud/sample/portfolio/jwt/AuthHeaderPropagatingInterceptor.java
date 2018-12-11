@@ -30,7 +30,7 @@ import java.io.IOException;
  * onto the request being made outbound.
  */
 @Component
-public class HeaderPropagatingInterceptor  implements ClientHttpRequestInterceptor {
+public class AuthHeaderPropagatingInterceptor  implements ClientHttpRequestInterceptor {
 
     @Autowired
     private HttpServletRequest originalRequest;
@@ -38,14 +38,11 @@ public class HeaderPropagatingInterceptor  implements ClientHttpRequestIntercept
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 
-        Enumeration<String> headers = originalRequest.getHeaderNames();	
-		if (headers != null) {	
-			while (headers.hasMoreElements()) {	
-				String headerName = headers.nextElement(); 	
-				request.getHeaders().add(headerName, originalRequest.getHeader(headerName));
-			}	
-		}
-
+        String authHeader = originalRequest.getHeader("Authorization");
+        if(authHeader!=null){
+            request.getHeaders().add("Authorization",authHeader);
+        }
+        
         ClientHttpResponse response = execution.execute(request, body);
 
         return response;

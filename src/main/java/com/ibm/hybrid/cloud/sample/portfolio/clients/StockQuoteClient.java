@@ -13,7 +13,7 @@
 package com.ibm.hybrid.cloud.sample.portfolio.clients;
 
 import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.StockQuoteReply;
-import com.ibm.hybrid.cloud.sample.portfolio.jwt.HeaderPropagatingInterceptor;
+import com.ibm.hybrid.cloud.sample.portfolio.jwt.AuthHeaderPropagatingInterceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 public class StockQuoteClient {
 
     @Autowired
-    HeaderPropagatingInterceptor headerPropagation;
+    AuthHeaderPropagatingInterceptor headerPropagation;
 
     @Autowired
     RestTemplate restTemplate;
