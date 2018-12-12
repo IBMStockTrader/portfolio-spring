@@ -12,7 +12,7 @@
  */
 package com.ibm.hybrid.cloud.sample.portfolio.jwt;
 
-import java.util.Enumeration;
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,14 +23,12 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 /**
- * Simple interceptor that will clone all headers from the request it is executed in the context of, 
- * onto the request being made outbound.
+ * Simple interceptor that will clone all headers from the request it is
+ * executed in the context of, onto the request being made outbound.
  */
 @Component
-public class AuthHeaderPropagatingInterceptor  implements ClientHttpRequestInterceptor {
+public class AuthHeaderPropagatingInterceptor implements ClientHttpRequestInterceptor {
 
     @Autowired
     private HttpServletRequest originalRequest;
