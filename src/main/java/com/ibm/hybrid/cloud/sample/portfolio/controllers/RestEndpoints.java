@@ -98,5 +98,4 @@ public class RestEndpoints {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }    
     
-
 }

@@ -35,7 +35,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @EnableJms
 @EnableJdbcRepositories("com.ibm.hybrid.cloud.sample.portfolio.repositories")
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@EnableGlobalMethodSecurity(securedEnabled=true)
 public class PortfolioApplication {
 
 	public static void main(String[] args) {
