@@ -91,7 +91,9 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public JwtClaimsSetVerifier jwtClaimsSetVerifier() {
         return new DelegatingJwtClaimsSetVerifier(Arrays.asList(
-                         issuerClaimVerifier()));
+                         issuerClaimVerifier(),
+                         requiredClaimsVerifier()
+                         ));
     }
 
     @Bean
@@ -116,6 +118,10 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
             }            
         }
     }   
+
+    @Bean JwtClaimsSetVerifier requiredClaimsVerifier() {
+        return new RequireIssAudClaimVerifier();
+    }
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
