@@ -44,6 +44,8 @@ public class FeedbackService{
         if(pr==null){
             throw new OwnerNotFoundException();
         }
+
+        int freeTrades = pr.getFree();
         
         ToneOptions toneRequest = new ToneOptions.Builder().text(input).sentences(false).build();
         DocumentAnalysis documentAnalysis = toneAnalyzerService.tone(toneRequest).execute().getDocumentTone();
@@ -58,9 +60,9 @@ public class FeedbackService{
 
         Feedback feedback = getFeedback(owner, sentiment);
         
-        int freeTrades = feedback.getFree();
+        freeTrades += feedback.getFree();
         pr.setSentiment(feedback.getSentiment());
-        pr.setFree(feedback.getFree()); //Note this OVERWRITES previous free trade count.
+        pr.setFree(freeTrades); 
 
         portfolios.save(pr);
 
