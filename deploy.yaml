@@ -1,0 +1,112 @@
+#Deploy the pod
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: portfolio-spring
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: portfolio-spring
+        solution: stock-trader
+    spec:       
+      containers:
+      - name: portfolio-spring
+        image: mycluster.icp:8500/default/portfolio-spring:alpha
+        imagePullPolicy: IfNotPresent      
+        env:
+          - name: JDBC_HOST
+            valueFrom:
+              secretKeyRef:
+                name: db2
+                key: host
+          - name: JDBC_PORT
+            valueFrom:
+              secretKeyRef:
+                name: db2
+                key: port
+          - name: JDBC_DB
+            valueFrom:
+              secretKeyRef:
+                name: db2
+                key: db
+          - name: JDBC_ID
+            valueFrom:
+              secretKeyRef:
+                name: db2
+                key: id
+          - name: JDBC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db2
+                key: pwd
+          - name: MQ_HOST
+            valueFrom:
+              secretKeyRef:
+                name: mq
+                key: host
+          - name: MQ_PORT
+            valueFrom:
+              secretKeyRef:
+                name: mq   
+                key: port
+          - name: MQ_CHANNEL
+            valueFrom:
+              secretKeyRef:
+                name: mq   
+                key: channel
+          - name: MQ_QUEUE_MANAGER
+            valueFrom:
+              secretKeyRef:
+                name: mq   
+                key: queue-manager
+          - name: MQ_QUEUE
+            valueFrom:
+               secretKeyRef:
+                 name: mq   
+                 key: queue
+          - name: WATSON_URL
+            valueFrom:
+              secretKeyRef:
+                name: watson
+                key: url
+          - name: WATSON_APIKEY
+            valueFrom:
+              secretKeyRef:
+                name: watson
+                key: pwd
+          - name: LOYALTY_URL
+            valueFrom:
+              secretKeyRef:
+                name: odm
+                key: url
+          - name: LOYALTY_ID
+            valueFrom:
+              secretKeyRef:
+                name: odm
+                key: id
+          - name: LOYALTY_PWD
+            valueFrom:
+              secretKeyRef:
+                name: odm
+                key: pwd
+          - name: JWT_AUDIENCE
+            valueFrom:
+              secretKeyRef:
+                name: jwt 
+                key: audience
+          - name: JWT_ISSUER
+            valueFrom:
+              secretKeyRef:
+                name: jwt
+                key: issuer
+          - name: JWT_KEY
+            value: "default"
+          - name: JWT_KEYSTORE
+            value: "key.jks"
+          - name: JWT_KEY
+            value: "passw0rd"
+        ports:        
+          - containerPort: 9080
+          - containerPort: 9443
