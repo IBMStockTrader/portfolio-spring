@@ -71,5 +71,7 @@ The application/container expects the following environment variables to be popu
 |`STOCK_QUOTE_URL` | Url for Stock Quote service | 
 |`JWT_AUDIENCE` | The expected audience for jwt authentication |
 |`JWT_ISSUER` | The expected isser for jwt authentication | 
-|`JWT_KEY` (note : *temporary*) | shared key for jwt authentication |
+|`JWT_KEY` | alias for public key used for jwt authentication |
+|`JWT_KEYSTORE` | filename keystore used for jwt authentication |
+|`JWT_KEYSTORE_PWD` | password for keystore used for jwt authentication |
 
