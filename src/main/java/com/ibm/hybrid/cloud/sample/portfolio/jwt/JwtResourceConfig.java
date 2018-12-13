@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,16 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
     private String audience;   
 
     @Value("${jwt.issuer}")
-    private String issuer;  
+    private String issuer; 
+    
+    @Value("${jwt.keyname}")
+    private String keyName;
+
+    @Value("${jwt.keystore}")
+    private String keyStore;
+
+    @Value("${jwt.keystorepwd}")
+    private String keyStorePwd;
 
     @Autowired
     JwtRolesTokenConverter jwtRolesConverter;
@@ -64,14 +74,12 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
         defaultConverter.setUserTokenConverter(jwtRolesConverter);
 
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-
-        //TODO: read from config / environment.
         KeyStoreKeyFactory keyStoreKeyFactory =
                 new KeyStoreKeyFactory(
-                        new ClassPathResource("key.jks"),
-                        "passw0rd".toCharArray());
-        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("default"));
-
+                        new ClassPathResource(keyStore),
+                        keyStorePwd.toCharArray());
+                        
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair(keyName));
         converter.setAccessTokenConverter(defaultConverter);
         converter.setJwtClaimsSetVerifier(jwtClaimsSetVerifier());
         return converter;
@@ -83,7 +91,6 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
         JwtTokenService tokenService = new JwtTokenService();
         tokenService.setTokenStore(tokenStore());
         tokenService.setSupportRefreshToken(false); //rs doesn't do refresh
-
         tokenService.setTokenEnhancer(accessTokenConverter());
         return tokenService;
     }	
@@ -91,8 +98,8 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public JwtClaimsSetVerifier jwtClaimsSetVerifier() {
         return new DelegatingJwtClaimsSetVerifier(Arrays.asList(
-                         issuerClaimVerifier(),
-                         requiredClaimsVerifier()
+                         issuerClaimVerifier()
+                         ,requiredClaimsVerifier()
                          ));
     }
 
@@ -105,22 +112,20 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
         }
     }
 
-    public class RequireIssAudClaimVerifier implements JwtClaimsSetVerifier {
+    public class MpJwtRequiredClaimVerifier implements JwtClaimsSetVerifier {
         @Override
         public void verify(Map<String, Object> claims) throws InvalidTokenException {
-            String iss = (String) claims.get("iss");
-            if ((iss == null) || (iss.length() == 0)) {
-                throw new InvalidTokenException("iss claim is empty");
-            }
-            String aud = (String) claims.get("aud");
-            if ((aud == null) || (aud.length() == 0)) {
-                throw new InvalidTokenException("aud claim is empty");
-            }            
+            Stream.of("iss","sub","aud","exp","iat",/*"jti",*/"upn","groups")
+                  .forEach(claim -> {   
+                    if (!claims.containsKey(claim)) {
+                        throw new InvalidTokenException(claim+" claim is missing");
+                    }
+                  });          
         }
     }   
 
     @Bean JwtClaimsSetVerifier requiredClaimsVerifier() {
-        return new RequireIssAudClaimVerifier();
+        return new MpJwtRequiredClaimVerifier();
     }
 
     @Override

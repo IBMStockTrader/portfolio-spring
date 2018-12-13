@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,15 +32,21 @@ public class JwtRolesTokenConverter extends DefaultUserAuthenticationConverter {
 
         @Override
         public Authentication extractAuthentication(Map<String, ?> map) {
-          if (map.containsKey("sub")) {
-            String username = (String) map.get("sub");
-            Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
-            return new UsernamePasswordAuthenticationToken(username, null, authorities);
-          }
-          return null;
+          String username = extractMpJwtUsername(map);
+          Collection<? extends GrantedAuthority> authorities = getAuthorities(map);
+          return new UsernamePasswordAuthenticationToken(username, null, authorities);
         }
-      
-       
+
+        /**
+         * Extract name from claims using MP-JWT rules
+         * @param map
+         * @return
+         */
+        private String extractMpJwtUsername(Map<String, ?> map) {
+          Optional<String> name = Stream.of("upn","preferred_username","sub").map(claim ->(String)map.get(claim)).filter(val -> val!=null).findFirst();          
+          return name.get();
+        }
+             
         /**
          * Parse MP-JWT groups, and create appropriate spring authorities
          * @param map
