@@ -78,7 +78,7 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
                 new KeyStoreKeyFactory(
                         new ClassPathResource(keyStore),
                         keyStorePwd.toCharArray());
-                        
+
         converter.setKeyPair(keyStoreKeyFactory.getKeyPair(keyName));
         converter.setAccessTokenConverter(defaultConverter);
         converter.setJwtClaimsSetVerifier(jwtClaimsSetVerifier());
@@ -115,12 +115,14 @@ public class JwtResourceConfig extends ResourceServerConfigurerAdapter {
     public class MpJwtRequiredClaimVerifier implements JwtClaimsSetVerifier {
         @Override
         public void verify(Map<String, Object> claims) throws InvalidTokenException {
-            Stream.of("iss","sub","aud","exp","iat",/*"jti",*/"upn","groups")
+            //upn is optional, it falls back to sub, via preferred_username
+            Stream.of("iss","sub","aud","exp","iat","jti","groups") 
+                  .filter(claim -> !"jti".equals(claim)) //MP-JWT spec is contradictory.
                   .forEach(claim -> {   
-                    if (!claims.containsKey(claim)) {
+                    if (!claims.containsKey(claim)) {                        
                         throw new InvalidTokenException(claim+" claim is missing");
                     }
-                  });          
+                  }); 
         }
     }   
 
