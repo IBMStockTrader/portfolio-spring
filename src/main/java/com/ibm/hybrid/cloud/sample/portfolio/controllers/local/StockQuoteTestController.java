@@ -35,8 +35,7 @@ public class StockQuoteTestController {
     }
 
     //handy for debugging security =)
-    @GetMapping("/authinfo")
-    @Secured({"ROLE_STOCKTRADER","ROLE_STOCKVIEWER"})
+    @GetMapping("/authinfo")    
     public String authinfo(@AuthenticationPrincipal Authentication a){
         String result = "";
         for(GrantedAuthority ga : a.getAuthorities()){

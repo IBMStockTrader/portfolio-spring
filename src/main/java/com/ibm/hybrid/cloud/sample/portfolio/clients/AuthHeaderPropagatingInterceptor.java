@@ -10,7 +10,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package com.ibm.hybrid.cloud.sample.portfolio.jwt;
+package com.ibm.hybrid.cloud.sample.portfolio.clients;
 
 import java.io.IOException;
 

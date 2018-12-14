@@ -13,7 +13,6 @@
 package com.ibm.hybrid.cloud.sample.portfolio.clients;
 
 import com.ibm.hybrid.cloud.sample.portfolio.clients.datamodel.StockQuoteReply;
-import com.ibm.hybrid.cloud.sample.portfolio.jwt.AuthHeaderPropagatingInterceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
