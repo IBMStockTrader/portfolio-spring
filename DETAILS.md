@@ -30,7 +30,7 @@ user holds a given Role. The latter two however accept Spring Expression Languag
 arbitrary expressions to be crafted that can even access the method arguments/return values respectively. 
 
 Spring Method Level Security is enabled by adding the `@EnableGlobalMethodSecurity` annotation to the application. The annotation can be customised to indivually enable use
-of `@Secured`, `@RoleAllowed`, and `@PreAuthorize/@PostAuthorize`.
+of `@Secured`, `@RoleAllowed`, and `@PreAuthorize`/`@PostAuthorize`.
 
 For this project, the `@Secured` annotation is used to restrict 
 access to the rest endpoints to users identified as having the 
